@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!-- saved from url=(0099)file:///E:/%E5%AE%9E%E9%AA%8C%E4%B8%93%E7%94%A8/canvas%E8%B4%AA%E9%A3%9F%E8%9B%871.0/%E5%9C%86.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<title>贪食蛇</title>
+	<style>
+		*{margin:0;padding:0;}
+		canvas{margin:100px auto;background:url(2.jpg) no-repeat;background-size:100% 100%;display:block;}
+	</style>
+	<script>
+		function ranRgb(n,m){
+			return Math.floor(Math.random()*(m-n)+n)
+		}
+		document.addEventListener('DOMContentLoaded',function(){
+			var canvas=document.getElementById('canvas');
+			var context=canvas.getContext('2d');
+			var snakeArr=[];//小蛇
+			var foodArr=[];//食物
+			var time=null;
+			var leftTime=null;
+			var rightTime=null;
+			var topTime=null;
+			var bottomTime=null;
+			var lengthNum=5;//蛇的长度
+			var x=4;
+			var y=8;
+			function ball(x,y,r,angle,color){//定义小蛇
+				this.x=x;
+				this.y=y;
+				this.r=r;
+				this.angle=angle;
+				this.color=color;
+				this.draw=function(){
+					context.beginPath();
+					context.strokeStyle=this.color;
+					context.lineWidth=5;
+					context.arc(this.x,this.y,this.r,(Math.PI/180)*0,(Math.PI/180)*360,false);
+					context.stroke();
+					context.closePath();
+
+					context.beginPath();
+					context.strokeStyle=this.color;
+					context.lineWidth=6;
+					context.arc(this.x,this.y,this.r,(Math.PI/180)*0,(Math.PI/180)*this.angle,false);
+					context.stroke();
+					context.closePath();
+
+				}
+				this.animat=function(){
+					if(this.angle<361){
+						this.angle+=0.5;
+					}
+				}
+			};
+			
+			function Drawing(x,y){//创建小蛇，控制小蛇长度
+				var rgb='rgb('+ranRgb(0,256)+','+ranRgb(0,256)+','+ranRgb(0,256)+')';
+				var newBall=new ball(x,y,2,0,'red');
+				snakeArr.push(newBall);
+				if(snakeArr.length>lengthNum){
+					snakeArr.shift();
+				}
+			};
+			function init(){//画小蛇
+				context.clearRect(0,0,canvas.width, canvas.height);
+
+				for(var i=0;i<foodArr.length;i++){
+					foodArr[i].draw();
+				};
+				for(var i=0;i<snakeArr.length;i++){
+					snakeArr[i].draw();
+				};
+			};
+			function clearTime(){//清除小蛇原先行走方向，
+				clearInterval(leftTime);
+				clearInterval(rightTime);
+				clearInterval(topTime);
+				clearInterval(bottomTime);
+			};
+			function hitFn(X,Y){//碰撞检测
+				if(X<0||X>canvas.width||Y<0||Y>canvas.height){//检测小蛇是否撞墙
+					clearInterval(time);
+					clearTime();
+					alert('长点心吧！撞墙了...');
+				}else if(X>(foodArr[0].x-8)&&X<(foodArr[0].x+8)&&Y>(foodArr[0].y-8)&&Y<(foodArr[0].y+8)){
+					foodArr=[];
+					foodFn();
+					lengthNum+=4;
+				}
+				
+			};
+			function foodFn(){//创建小蛇吃的圆点
+				var food=new ball(ranRgb(6,canvas.width-6),ranRgb(6,canvas.height-6),2,0,'#000');
+				if(!foodArr.length){
+					foodArr.push(food);
+				}
+			};
+			document.onkeydown=function(event){
+				var e = event || window.event || arguments.callee.caller.arguments[0];
+
+				if(e && e.keyCode==37){//左键
+					clearTime();
+					leftTime=setInterval(function(){
+						foodFn();
+						Drawing(x,y);
+						hitFn(x,y);
+
+						x-=2;
+					},20);
+				}else if(e && e.keyCode==38){//上键
+					clearTime();
+					topTime=setInterval(function(){
+						
+						foodFn();
+						Drawing(x,y);
+						hitFn(x,y);
+						y-=2;
+					},20);
+				}else if( e && e.keyCode==39){//右
+					clearTime();
+					rightTime=setInterval(function(){
+						
+						foodFn();
+						Drawing(x,y);
+						hitFn(x,y);
+						x+=2;
+					},20);
+				}else if(e && e.keyCode==40){//下键
+					clearTime();
+					bottomTime=setInterval(function(){
+						
+						foodFn();
+						Drawing(x,y);
+						hitFn(x,y);
+						y+=2;
+					},20);
+				}else if(e && e.keyCode==13){
+					x=2;
+					y=2;
+					lengthNum=5;
+					snakeArr=[];
+					foodArr=[];
+					clearTime();
+					rightTime=setInterval(function(){
+						foodFn();
+						Drawing(x,y);
+						hitFn(x,y)
+						x+=2;
+					},20);
+					time=setInterval(init,20);
+				}
+			}; 
+			
+		},false)
+	</script>
+</head>
+<body>
+	<canvas id="canvas" width="800" height="600"></canvas>
+
+</body></html>
